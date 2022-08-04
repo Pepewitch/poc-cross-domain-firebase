@@ -78,10 +78,6 @@ const Signin = () => {
         },
         {
           withCredentials: true,
-          headers: {
-            "Access-Control-Allow-Origin":
-              "https://us-central1-poc-cross-domain-firebase.cloudfunctions.net",
-          },
         }
       );
       setEmail("");
@@ -140,10 +136,6 @@ export default function Home() {
       try {
         const { data } = await axios.get(`${BASE_URL}/status`, {
           withCredentials: true,
-          headers: {
-            "Access-Control-Allow-Origin":
-              "https://us-central1-poc-cross-domain-firebase.cloudfunctions.net",
-          },
         });
         if (data.customToken) {
           await signInWithCustomToken(auth, data.customToken);
@@ -162,13 +154,23 @@ export default function Home() {
       <div className="mb-6">
         <h2>
           First domain:{" "}
-          <a className="underline text-blue-700" target="_blank" rel="noreferrer" href="https://poc-cross-domain-firebase-git-master-skpepe134.vercel.app">
+          <a
+            className="underline text-blue-700"
+            target="_blank"
+            rel="noreferrer"
+            href="https://poc-cross-domain-firebase-git-master-skpepe134.vercel.app"
+          >
             https://poc-cross-domain-firebase-git-master-skpepe134.vercel.app
           </a>
         </h2>
         <h2>
           Second domain:{" "}
-          <a className="underline text-blue-700" target="_blank" rel="noreferrer" href="https://poc-cross-domain-firebase.vercel.app">
+          <a
+            className="underline text-blue-700"
+            target="_blank"
+            rel="noreferrer"
+            href="https://poc-cross-domain-firebase.vercel.app"
+          >
             https://poc-cross-domain-firebase.vercel.app
           </a>
         </h2>

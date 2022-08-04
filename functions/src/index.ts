@@ -16,6 +16,8 @@ export const login = functions.https.onRequest(async (request, response) => {
   }
   response.set("Access-Control-Allow-Credentials", "true");
   response.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  
 
   const expiresIn = 60 * 60 * 24 * 365 * 1000; // set for a year
   const sessionCookie = await admin
@@ -39,6 +41,7 @@ export const status = functions.https.onRequest(async (request, response) => {
   }
   response.set("Access-Control-Allow-Credentials", "true");
   response.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
   
   const sessionCookie: string = request.cookies?.__session || "";
   const decodedIdToken = await admin
