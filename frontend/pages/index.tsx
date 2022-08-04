@@ -159,6 +159,20 @@ export default function Home() {
       <h1 className="text-3xl font-bold underline mb-6">
         PoC Cross domain Firebase!
       </h1>
+      <div className="mb-6">
+        <h2>
+          First domain:{" "}
+          <a className="underline text-blue-700" target="_blank" rel="noreferrer" href="https://poc-cross-domain-firebase-git-master-skpepe134.vercel.app">
+            https://poc-cross-domain-firebase-git-master-skpepe134.vercel.app
+          </a>
+        </h2>
+        <h2>
+          Second domain:{" "}
+          <a className="underline text-blue-700" target="_blank" rel="noreferrer" href="https://poc-cross-domain-firebase.vercel.app">
+            https://poc-cross-domain-firebase.vercel.app
+          </a>
+        </h2>
+      </div>
       <p className="mb-4 text-xl">
         {currentUser ? (
           <>
