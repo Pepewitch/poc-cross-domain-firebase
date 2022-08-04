@@ -1,10 +1,15 @@
+import axios from "axios";
 import {
   signInWithEmailAndPassword,
   User,
   createUserWithEmailAndPassword,
+  signInWithCustomToken,
 } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "../constants/firebase";
+
+const BASE_URL =
+  "https://us-central1-poc-cross-domain-firebase.cloudfunctions.net";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -65,7 +70,14 @@ const Signin = () => {
   const signin = async () => {
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      await axios.post(
+        `${BASE_URL}/login`,
+        {
+          idToken: await cred.user.getIdToken(),
+        },
+        { withCredentials: true }
+      );
       setEmail("");
       setPassword("");
       alert(`Sign in as ${email} successful!`);
@@ -117,6 +129,21 @@ export default function Home() {
       setCurrentUser(user);
     });
   }, []);
+  useEffect(() => {
+    const syncUser = async () => {
+      try {
+        const { data } = await axios.get(`${BASE_URL}/status`, {
+          withCredentials: true,
+        });
+        if (data.customToken) {
+          await signInWithCustomToken(auth, data.customToken);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    syncUser();
+  }, []);
   return (
     <div className="flex p-2 flex-col items-center max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold underline mb-6">
@@ -143,10 +170,10 @@ export default function Home() {
         </button>
       )}
       <div className="grid w-full grid-cols-2">
-        <div >
+        <div>
           <Signup />
         </div>
-        <div >
+        <div>
           <Signin />
         </div>
       </div>

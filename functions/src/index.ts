@@ -18,6 +18,8 @@ export const login = functions.https.onRequest(async (request, response) => {
     secure: true,
     domain: '.vercel.app'
   });
+  response.header("Access-Control-Allow-Origin: *");
+  response.header('Access-Control-Allow-Credentials: true')
   response.send({ success: true });
 });
 
@@ -27,5 +29,7 @@ export const status = functions.https.onRequest(async (request, response) => {
     .auth()
     .verifySessionCookie(sessionCookie, true);
   const customToken = await admin.auth().createCustomToken(decodedIdToken.uid);
+  response.header("Access-Control-Allow-Origin: *");
+  response.header('Access-Control-Allow-Credentials: true')
   response.send({ customToken });
 });
