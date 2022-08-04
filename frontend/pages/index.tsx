@@ -76,7 +76,13 @@ const Signin = () => {
         {
           idToken: await cred.user.getIdToken(),
         },
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: {
+            "Access-Control-Allow-Origin":
+              "https://us-central1-poc-cross-domain-firebase.cloudfunctions.net",
+          },
+        }
       );
       setEmail("");
       setPassword("");
@@ -134,6 +140,10 @@ export default function Home() {
       try {
         const { data } = await axios.get(`${BASE_URL}/status`, {
           withCredentials: true,
+          headers: {
+            "Access-Control-Allow-Origin":
+              "https://us-central1-poc-cross-domain-firebase.cloudfunctions.net",
+          },
         });
         if (data.customToken) {
           await signInWithCustomToken(auth, data.customToken);
