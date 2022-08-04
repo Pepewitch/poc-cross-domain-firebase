@@ -10,6 +10,7 @@ import { auth } from "../constants/firebase";
 
 const BASE_URL =
   "https://us-central1-poc-cross-domain-firebase.cloudfunctions.net";
+axios.defaults.withCredentials = true;
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -71,20 +72,9 @@ const Signin = () => {
     setLoading(true);
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      const { headers } = await axios.post(
-        `${BASE_URL}/login`,
-        {
-          idToken: await cred.user.getIdToken(),
-        },
-        {
-          withCredentials: true,
-        }
-      );
-      console.log(headers)
-      console.log(headers["set-cookie"])
-      if(headers["set-cookie"]) {
-        document.cookie = headers["set-cookie"].join('; ')
-      }
+      await axios.post(`${BASE_URL}/login`, {
+        idToken: await cred.user.getIdToken(),
+      });
       setEmail("");
       setPassword("");
       alert(`Sign in as ${email} successful!`);
@@ -139,9 +129,7 @@ export default function Home() {
   useEffect(() => {
     const syncUser = async () => {
       try {
-        const { data } = await axios.get(`${BASE_URL}/status`, {
-          withCredentials: true,
-        });
+        const { data } = await axios.get(`${BASE_URL}/status`);
         if (data.customToken) {
           await signInWithCustomToken(auth, data.customToken);
         }
