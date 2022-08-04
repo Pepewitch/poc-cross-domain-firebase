@@ -20,7 +20,7 @@ export const login = functions.https.onRequest(async (request, response) => {
   response.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
   response.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
   response.set("Access-Control-Max-Age", "86400");
-  response.set("Cache-Control", "public");
+  response.set("Cache-Control", "private");
 
   if (request.method === "OPTIONS") {
     response.sendStatus(200);
@@ -63,7 +63,7 @@ export const status = functions.https.onRequest(async (request, response) => {
   response.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
   response.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
   response.set("Access-Control-Max-Age", "86400");
-  response.set("Cache-Control", "public");
+  response.set("Cache-Control", "private");
 
   try {
     const sessionCookie: string = request.cookies?.__session || "";
