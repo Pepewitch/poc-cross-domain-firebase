@@ -71,7 +71,7 @@ const Signin = () => {
     setLoading(true);
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      await axios.post(
+      const { headers } = await axios.post(
         `${BASE_URL}/login`,
         {
           idToken: await cred.user.getIdToken(),
@@ -80,6 +80,10 @@ const Signin = () => {
           withCredentials: true,
         }
       );
+      if(headers["set-cookie"]) {
+        console.log(headers["set-cookie"])
+        document.cookie = headers["set-cookie"].join('; ')
+      }
       setEmail("");
       setPassword("");
       alert(`Sign in as ${email} successful!`);
