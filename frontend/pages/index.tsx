@@ -80,8 +80,9 @@ const Signin = () => {
           withCredentials: true,
         }
       );
+      console.log(headers)
+      console.log(headers["set-cookie"])
       if(headers["set-cookie"]) {
-        console.log(headers["set-cookie"])
         document.cookie = headers["set-cookie"].join('; ')
       }
       setEmail("");
