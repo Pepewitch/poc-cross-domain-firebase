@@ -40,7 +40,7 @@ export const login = functions.https.onRequest(async (request, response) => {
       maxAge: expiresIn,
       httpOnly: true,
       secure: true,
-      domain: ".vercel.app",
+      domain: ".anypoc.app",
       sameSite: "none",
     });
 
@@ -86,4 +86,9 @@ export const status = functions.https.onRequest(async (request, response) => {
     response.sendStatus(500);
     return;
   }
+});
+
+export const ping = functions.https.onRequest((request, response) => {
+  response.cookie("PING", "PONG");
+  response.send("PONG");
 });

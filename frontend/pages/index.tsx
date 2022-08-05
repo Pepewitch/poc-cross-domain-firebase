@@ -129,7 +129,7 @@ export default function Home() {
   useEffect(() => {
     const syncUser = async () => {
       try {
-        const { data } = await axios.get(`${BASE_URL}/status`);
+        const { data } = await axios.post(`${BASE_URL}/status`);
         if (data.customToken) {
           await signInWithCustomToken(auth, data.customToken);
         }

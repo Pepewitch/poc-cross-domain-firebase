@@ -12,6 +12,10 @@
       {
         "source": "/status",
         "function": "status"
+      },
+      {
+        "source": "/ping",
+        "function": "ping"
       }
     ],
     "ignore": ["frontend", "firebase.json", "**/.*", "**/node_modules/**"]
