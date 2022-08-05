@@ -5,7 +5,7 @@ import {
   verifyJwtSignature,
   ALGORITHM_RS256,
 } from "firebase-admin/lib/utils/jwt";
-import { getKeyCallback } from "./helper";
+import { getCookie, getKeyCallback } from "./helper";
 
 admin.initializeApp();
 const sessionCookieVerifier = createSessionCookieVerifier(admin.app());
@@ -93,10 +93,17 @@ export const logout = functions.https.onRequest(async (request, response) => {
   }
 });
 
+type DecodedSessionToken = {
+  header: { alg: "RS256"; kid: string };
+  payload: admin.auth.DecodedIdToken;
+};
+
 const verifySessionCookieExtended = async (sessionCookie: string) => {
   const projectId = await sessionCookieVerifier.ensureProjectId();
-  const decodedToken = await sessionCookieVerifier.safeDecode(sessionCookie);
+  const decodedToken: DecodedSessionToken =
+    await sessionCookieVerifier.safeDecode(sessionCookie);
   sessionCookieVerifier.verifyContent(decodedToken, projectId);
+
   try {
     await verifyJwtSignature(
       sessionCookie,
@@ -107,14 +114,6 @@ const verifySessionCookieExtended = async (sessionCookie: string) => {
     throw sessionCookieVerifier.mapJwtErrorToAuthError(err);
   }
   return { ...decodedToken.payload, uid: decodedToken.payload.sub };
-};
-
-const getCookie = (cookie?: string): { [key: string]: string } => {
-  if (!cookie) return {};
-  return cookie
-    .split(";")
-    .map((each) => each.trim().split("="))
-    .reduce((p, c) => ({ ...p, [c[0]]: c[1] }), {});
 };
 
 export const status = functions.https.onRequest(async (request, response) => {

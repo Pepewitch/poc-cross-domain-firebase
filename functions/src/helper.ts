@@ -1,10 +1,10 @@
-import * as jwt from 'jsonwebtoken';
+import * as jwt from "jsonwebtoken";
 
 interface KeyFetcher {
   fetchPublicKeys(): Promise<{ [key: string]: string }>;
 }
-const NO_MATCHING_KID_ERROR_MESSAGE = 'no-matching-kid-error';
-const NO_KID_IN_HEADER_ERROR_MESSAGE = 'no-kid-in-header-error';
+const NO_MATCHING_KID_ERROR_MESSAGE = "no-matching-kid-error";
+const NO_KID_IN_HEADER_ERROR_MESSAGE = "no-kid-in-header-error";
 
 /**
  * Provides a callback to fetch public keys.
@@ -32,3 +32,11 @@ export function getKeyCallback(fetcher: KeyFetcher): jwt.GetPublicKeyOrSecret {
       });
   };
 }
+
+export const getCookie = (cookie?: string): { [key: string]: string } => {
+  if (!cookie) return {};
+  return cookie
+    .split(";")
+    .map((each) => each.trim().split("="))
+    .reduce((p, c) => ({ ...p, [c[0]]: c[1] }), {});
+};
