@@ -1,14 +1,21 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-
-// const createSessionCookieVerifier = require("firebase-admin/lib/auth/token-verifier");
+import { createSessionCookieVerifier } from "firebase-admin/lib/auth/token-verifier";
+import {
+  verifyJwtSignature,
+  ALGORITHM_RS256,
+} from "firebase-admin/lib/utils/jwt";
+import { getKeyCallback } from "./helper";
 
 admin.initializeApp();
+const sessionCookieVerifier = createSessionCookieVerifier(admin.app());
 
 const origins = [
   "https://poc-cross-domain-firebase.anypoc.app",
   "https://poc-cross-domain-firebase2.anypoc.app",
 ];
+
+const cookieMaxExpires = new Date(2147483647000);
 
 export const login = functions.https.onRequest(async (request, response) => {
   if (origins.includes(request.headers.origin as string)) {
@@ -26,12 +33,13 @@ export const login = functions.https.onRequest(async (request, response) => {
   }
 
   try {
-    const expiresIn = 60 * 60 * 24 * 5 * 1000; // set for 5 days
+    const expiresIn = 300 * 1000; // set for 5 min (minimum) to test `ignoreExpiration`
+    // const expiresIn = 60 * 60 * 24 * 14 * 1000; // set for 2 weeks (maximum)
     const sessionCookie = await admin
       .auth()
       .createSessionCookie(request.body.idToken, { expiresIn });
     response.cookie("__session", sessionCookie, {
-      maxAge: expiresIn,
+      expires: cookieMaxExpires,
       httpOnly: true,
       secure: true,
       domain: ".anypoc.app",
@@ -85,6 +93,22 @@ export const logout = functions.https.onRequest(async (request, response) => {
   }
 });
 
+const verifySessionCookieExtended = async (sessionCookie: string) => {
+  const projectId = await sessionCookieVerifier.ensureProjectId();
+  const decodedToken = await sessionCookieVerifier.safeDecode(sessionCookie);
+  sessionCookieVerifier.verifyContent(decodedToken, projectId);
+  try {
+    await verifyJwtSignature(
+      sessionCookie,
+      getKeyCallback(sessionCookieVerifier.signatureVerifier.keyFetcher),
+      { algorithms: [ALGORITHM_RS256], ignoreExpiration: true }
+    );
+  } catch (err) {
+    throw sessionCookieVerifier.mapJwtErrorToAuthError(err);
+  }
+  return { ...decodedToken.payload, uid: decodedToken.payload.sub };
+};
+
 const getCookie = (cookie?: string): { [key: string]: string } => {
   if (!cookie) return {};
   return cookie
@@ -106,9 +130,10 @@ export const status = functions.https.onRequest(async (request, response) => {
   try {
     const cookie = getCookie(request.headers.cookie);
     const sessionCookie: string = cookie.__session || "";
-    const decodedIdToken = await admin
-      .auth()
-      .verifySessionCookie(sessionCookie, true);
+    // const decodedIdToken = await admin
+    //   .auth()
+    //   .verifySessionCookie(sessionCookie, true);
+    const decodedIdToken = await verifySessionCookieExtended(sessionCookie);
     const customToken = await admin
       .auth()
       .createCustomToken(decodedIdToken.uid);
@@ -125,6 +150,5 @@ export const status = functions.https.onRequest(async (request, response) => {
 });
 
 export const ping = functions.https.onRequest((request, response) => {
-  response.cookie("PING", "PONG");
   response.send("PONG");
 });
