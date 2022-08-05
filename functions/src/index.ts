@@ -1,12 +1,15 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
+// const createSessionCookieVerifier = require("firebase-admin/lib/auth/token-verifier");
+
 admin.initializeApp({
   projectId: "poc-cross-domain-firebase",
 });
+
 const origins = [
-  "https://poc-cross-domain-firebase.vercel.app",
-  "https://poc-cross-domain-firebase-git-master-skpepe134.vercel.app",
+  "https://poc-cross-domain-firebase.anypoc.app",
+  "https://poc-cross-domain-firebase2.anypoc.app",
 ];
 
 export const login = functions.https.onRequest(async (request, response) => {
@@ -32,13 +35,13 @@ export const login = functions.https.onRequest(async (request, response) => {
     const sessionCookie = await admin
       .auth()
       .createSessionCookie(request.body.idToken, { expiresIn });
-    console.log('SESSION COOKIE', sessionCookie)
+    console.log("SESSION COOKIE", sessionCookie);
     response.cookie("__session", sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
       secure: true,
       domain: ".vercel.app",
-      sameSite: 'none'
+      sameSite: "none",
     });
 
     response.status(200).send({ success: true });

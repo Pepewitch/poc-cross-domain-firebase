@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { auth } from "../constants/firebase";
 
 const BASE_URL =
-  "https://us-central1-poc-cross-domain-firebase.cloudfunctions.net";
+  "https://poc-cross-domain-firebase-api.anypoc.app";
 axios.defaults.withCredentials = true;
 
 const Signup = () => {
