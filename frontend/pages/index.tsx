@@ -8,8 +8,7 @@ import {
 import { useEffect, useState } from "react";
 import { auth } from "../constants/firebase";
 
-const BASE_URL =
-  "https://poc-cross-domain-firebase-api.anypoc.app";
+const BASE_URL = "https://poc-cross-domain-firebase-api.anypoc.app";
 axios.defaults.withCredentials = true;
 
 const Signup = () => {
@@ -121,6 +120,7 @@ const Signin = () => {
 
 export default function Home() {
   const [currentUser, setCurrentUser] = useState<User>(null);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       setCurrentUser(user);
@@ -129,12 +129,15 @@ export default function Home() {
   useEffect(() => {
     const syncUser = async () => {
       try {
+        setLoading(true);
         const { data } = await axios.post(`${BASE_URL}/status`);
         if (data.customToken) {
           await signInWithCustomToken(auth, data.customToken);
         }
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
     syncUser();
@@ -169,7 +172,9 @@ export default function Home() {
         </h2>
       </div>
       <p className="mb-4 text-xl">
-        {currentUser ? (
+        {loading ? (
+          <>Loading...</>
+        ) : currentUser ? (
           <>
             You logged in with{" "}
             <span className="text-red-700 font-bold underline">
@@ -188,14 +193,16 @@ export default function Home() {
           Logout
         </button>
       )}
-      <div className="grid w-full grid-cols-2">
-        <div>
-          <Signup />
+      {!loading && (
+        <div className="grid w-full grid-cols-2">
+          <div>
+            <Signup />
+          </div>
+          <div>
+            <Signin />
+          </div>
         </div>
-        <div>
-          <Signin />
-        </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -3,9 +3,7 @@ import * as admin from "firebase-admin";
 
 // const createSessionCookieVerifier = require("firebase-admin/lib/auth/token-verifier");
 
-admin.initializeApp({
-  projectId: "poc-cross-domain-firebase",
-});
+admin.initializeApp();
 
 const origins = [
   "https://poc-cross-domain-firebase.anypoc.app",
@@ -13,9 +11,6 @@ const origins = [
 ];
 
 export const login = functions.https.onRequest(async (request, response) => {
-  console.log("COOKIE", JSON.stringify(request.cookies));
-  console.log("BODY", JSON.stringify(request.body));
-  console.log("ORIGINS", request.headers.origin);
   if (origins.includes(request.headers.origin as string)) {
     response.set("Access-Control-Allow-Origin", request.headers.origin);
   }
@@ -35,7 +30,6 @@ export const login = functions.https.onRequest(async (request, response) => {
     const sessionCookie = await admin
       .auth()
       .createSessionCookie(request.body.idToken, { expiresIn });
-    console.log("SESSION COOKIE", sessionCookie);
     response.cookie("__session", sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
@@ -56,9 +50,15 @@ export const login = functions.https.onRequest(async (request, response) => {
   }
 });
 
+const getCookie = (cookie?: string): { [key: string]: string } => {
+  if (!cookie) return {};
+  return cookie
+    .split(";")
+    .map((each) => each.trim().split("="))
+    .reduce((p, c) => ({ ...p, [c[0]]: c[1] }), {});
+};
+
 export const status = functions.https.onRequest(async (request, response) => {
-  console.log("COOKIE", JSON.stringify(request.cookies));
-  console.log("ORIGINS", request.headers.origin);
   if (origins.includes(request.headers.origin as string)) {
     response.set("Access-Control-Allow-Origin", request.headers.origin);
   }
@@ -69,7 +69,8 @@ export const status = functions.https.onRequest(async (request, response) => {
   response.set("Cache-Control", "private");
 
   try {
-    const sessionCookie: string = request.cookies?.__session || "";
+    const cookie = getCookie(request.headers.cookie);
+    const sessionCookie: string = cookie.__session || "";
     const decodedIdToken = await admin
       .auth()
       .verifySessionCookie(sessionCookie, true);
