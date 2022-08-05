@@ -151,9 +151,9 @@ export default function Home() {
             className="underline text-blue-700"
             target="_blank"
             rel="noreferrer"
-            href="https://poc-cross-domain-firebase-git-master-skpepe134.vercel.app"
+            href="https://poc-cross-domain-firebase.anypoc.app"
           >
-            https://poc-cross-domain-firebase-git-master-skpepe134.vercel.app
+            https://poc-cross-domain-firebase.anypoc.app
           </a>
         </h2>
         <h2>
@@ -162,9 +162,9 @@ export default function Home() {
             className="underline text-blue-700"
             target="_blank"
             rel="noreferrer"
-            href="https://poc-cross-domain-firebase.vercel.app"
+            href="https://poc-cross-domain-firebase2.anypoc.app"
           >
-            https://poc-cross-domain-firebase.vercel.app
+            https://poc-cross-domain-firebase2.anypoc.app
           </a>
         </h2>
       </div>
