@@ -50,6 +50,41 @@ export const login = functions.https.onRequest(async (request, response) => {
   }
 });
 
+export const logout = functions.https.onRequest(async (request, response) => {
+  if (origins.includes(request.headers.origin as string)) {
+    response.set("Access-Control-Allow-Origin", request.headers.origin);
+  }
+  response.set("Access-Control-Allow-Credentials", "true");
+  response.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  response.set("Access-Control-Max-Age", "86400");
+  response.set("Cache-Control", "private");
+
+  if (request.method === "OPTIONS") {
+    response.sendStatus(200);
+    return;
+  }
+
+  try {
+    response.clearCookie("__session", {
+      httpOnly: true,
+      secure: true,
+      domain: ".anypoc.app",
+      sameSite: "none",
+    });
+
+    response.status(200).send({ success: true });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof Error) {
+      response.status(500).send({ message: error.message });
+      return;
+    }
+    response.sendStatus(500);
+    return;
+  }
+});
+
 const getCookie = (cookie?: string): { [key: string]: string } => {
   if (!cookie) return {};
   return cookie

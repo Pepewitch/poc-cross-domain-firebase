@@ -14,6 +14,10 @@
         "function": "status"
       },
       {
+        "source": "/logout",
+        "function": "logout"
+      },
+      {
         "source": "/ping",
         "function": "ping"
       }

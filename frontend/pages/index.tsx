@@ -142,6 +142,10 @@ export default function Home() {
     };
     syncUser();
   }, []);
+  const logout = async () => {
+    await axios.post(`${BASE_URL}/logout`);
+    await auth.signOut();
+  };
   return (
     <div className="flex p-2 flex-col items-center max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold underline mb-6">
@@ -188,7 +192,7 @@ export default function Home() {
       {!!currentUser && (
         <button
           className="bg-red-700 text-white rounded-md p-2 w-48 mb-6"
-          onClick={() => auth.signOut()}
+          onClick={logout}
         >
           Logout
         </button>
