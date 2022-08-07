@@ -63,6 +63,14 @@ const Signup = () => {
   );
 };
 
+const getCookie = (cookie?: string): { [key: string]: string } => {
+  if (!cookie) return {};
+  return cookie
+    .split(";")
+    .map((each) => each.trim().split("="))
+    .reduce((p, c) => ({ ...p, [c[0]]: c[1] }), {});
+};
+
 const Signin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -74,12 +82,13 @@ const Signin = () => {
       await axios.post(`${BASE_URL}/csrf`, {
         idToken: await cred.user.getIdToken(),
       });
+      const cookie = getCookie(document.cookie);
       await axios.post(
         `${BASE_URL}/login`,
         {
           idToken: await cred.user.getIdToken(),
-        }
-        // { headers: { "x-csrf-token":  } }
+        },
+        { headers: { "x-csrf-token": cookie.csrf_token } }
       );
       setEmail("");
       setPassword("");
