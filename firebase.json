@@ -18,6 +18,10 @@
         "function": "logout"
       },
       {
+        "source": "/csrf",
+        "function": "csrf"
+      },
+      {
         "source": "/ping",
         "function": "ping"
       }

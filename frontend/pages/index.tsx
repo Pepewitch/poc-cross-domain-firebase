@@ -71,9 +71,16 @@ const Signin = () => {
     setLoading(true);
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      await axios.post(`${BASE_URL}/login`, {
+      await axios.post(`${BASE_URL}/csrf`, {
         idToken: await cred.user.getIdToken(),
       });
+      await axios.post(
+        `${BASE_URL}/login`,
+        {
+          idToken: await cred.user.getIdToken(),
+        }
+        // { headers: { "x-csrf-token":  } }
+      );
       setEmail("");
       setPassword("");
       alert(`Sign in as ${email} successful!`);
