@@ -6,6 +6,7 @@ import {
   ALGORITHM_RS256,
 } from "firebase-admin/lib/utils/jwt";
 import { getCookie, getKeyCallback } from "./helper";
+import { decode } from "jsonwebtoken";
 
 admin.initializeApp();
 const sessionCookieVerifier = createSessionCookieVerifier(admin.app());
@@ -74,6 +75,10 @@ export const logout = functions.https.onRequest(async (request, response) => {
   }
 
   try {
+    const cookie = getCookie(request.headers.cookie);
+    const { uid } = await verifySessionCookieExtended(cookie.__session);
+
+    await admin.auth().revokeRefreshTokens(uid);
     response.clearCookie("__session", {
       httpOnly: true,
       secure: true,

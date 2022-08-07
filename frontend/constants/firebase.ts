@@ -18,4 +18,3 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
-setPersistence(auth, inMemoryPersistence)
