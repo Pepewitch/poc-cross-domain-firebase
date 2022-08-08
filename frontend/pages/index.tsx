@@ -216,7 +216,7 @@ export default function Home() {
           Logout
         </button>
       )}
-      {!loading && (
+      {!loading && !currentUser && (
         <div className="grid w-full grid-cols-2">
           <div>
             <Signup />
