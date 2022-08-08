@@ -11,6 +11,20 @@ import { auth } from "../constants/firebase";
 const BASE_URL = "https://poc-cross-domain-firebase-api.anypoc.app";
 axios.defaults.withCredentials = true;
 
+const syncCookieSession = async (idToken: string) => {
+  await axios.post(`${BASE_URL}/csrf`, {
+    idToken,
+  });
+  const cookie = getCookie(document.cookie);
+  await axios.post(
+    `${BASE_URL}/login`,
+    {
+      idToken,
+    },
+    { headers: { "x-csrf-token": cookie.csrf_token } }
+  );
+};
+
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,10 +32,10 @@ const Signup = () => {
   const signup = async () => {
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await syncCookieSession(await cred.user.getIdToken());
       setEmail("");
       setPassword("");
-      alert(`Register ${email} successful!`);
     } catch (error) {
       alert(error.message);
     } finally {
@@ -79,20 +93,9 @@ const Signin = () => {
     setLoading(true);
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      await axios.post(`${BASE_URL}/csrf`, {
-        idToken: await cred.user.getIdToken(),
-      });
-      const cookie = getCookie(document.cookie);
-      await axios.post(
-        `${BASE_URL}/login`,
-        {
-          idToken: await cred.user.getIdToken(),
-        },
-        { headers: { "x-csrf-token": cookie.csrf_token } }
-      );
+      await syncCookieSession(await cred.user.getIdToken());
       setEmail("");
       setPassword("");
-      alert(`Sign in as ${email} successful!`);
     } catch (error) {
       alert(error.message);
     } finally {

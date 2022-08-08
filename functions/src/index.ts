@@ -122,8 +122,10 @@ export const logout = functions.https.onRequest(async (request, response) => {
   try {
     const cookie = getCookie(request.headers.cookie);
     const { uid } = await verifySessionCookieExtended(cookie.__session);
-
     await admin.auth().revokeRefreshTokens(uid);
+  } catch (error) {}
+
+  try {
     response.clearCookie("__session", {
       httpOnly: true,
       secure: true,
