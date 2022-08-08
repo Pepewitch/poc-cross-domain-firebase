@@ -24,7 +24,7 @@ export const csrf = functions.https.onRequest(async (request, response) => {
   }
   response.set("Access-Control-Allow-Credentials", "true");
   response.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization, x-csrf-token");
   response.set("Access-Control-Max-Age", "86400");
   response.set("Cache-Control", "private");
 
@@ -61,7 +61,7 @@ export const login = functions.https.onRequest(async (request, response) => {
   }
   response.set("Access-Control-Allow-Credentials", "true");
   response.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization, x-csrf-token");
   response.set("Access-Control-Max-Age", "86400");
   response.set("Cache-Control", "private");
 
@@ -70,9 +70,8 @@ export const login = functions.https.onRequest(async (request, response) => {
     return;
   }
 
-  const { csrf_token: cookieCsrf } = getCookie();
+  const { csrf_token: cookieCsrf } = getCookie(request.headers.cookie);
   const csrf = request.headers["x-csrf-token"];
-  console.log("HEADER", JSON.stringify(request.headers));
   if (!csrf || !cookieCsrf || csrf !== cookieCsrf) {
     response.status(401).send("UNAUTHORIZED REQUEST!");
     return;
@@ -110,7 +109,7 @@ export const logout = functions.https.onRequest(async (request, response) => {
   }
   response.set("Access-Control-Allow-Credentials", "true");
   response.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization, x-csrf-token");
   response.set("Access-Control-Max-Age", "86400");
   response.set("Cache-Control", "private");
 
@@ -174,7 +173,7 @@ export const status = functions.https.onRequest(async (request, response) => {
   }
   response.set("Access-Control-Allow-Credentials", "true");
   response.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization, x-csrf-token");
   response.set("Access-Control-Max-Age", "86400");
   response.set("Cache-Control", "private");
 
