@@ -7,6 +7,11 @@ import {
 } from "firebase-admin/lib/utils/jwt";
 import { getCookie, getKeyCallback } from "./helper";
 import { hashSync } from "bcrypt";
+import { UserRecord } from "firebase-functions/lib/providers/auth";
+import {
+  AuthClientErrorCode,
+  FirebaseAuthError,
+} from "firebase-admin/lib/utils/error";
 
 admin.initializeApp();
 const sessionCookieVerifier = createSessionCookieVerifier(admin.app());
@@ -24,7 +29,10 @@ export const csrf = functions.https.onRequest(async (request, response) => {
   }
   response.set("Access-Control-Allow-Credentials", "true");
   response.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization, x-csrf-token");
+  response.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, x-csrf-token"
+  );
   response.set("Access-Control-Max-Age", "86400");
   response.set("Cache-Control", "private");
 
@@ -61,7 +69,10 @@ export const login = functions.https.onRequest(async (request, response) => {
   }
   response.set("Access-Control-Allow-Credentials", "true");
   response.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization, x-csrf-token");
+  response.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, x-csrf-token"
+  );
   response.set("Access-Control-Max-Age", "86400");
   response.set("Cache-Control", "private");
 
@@ -78,8 +89,8 @@ export const login = functions.https.onRequest(async (request, response) => {
   }
 
   try {
-    const expiresIn = 300 * 1000; // set for 5 min (minimum) to test `ignoreExpiration`
-    // const expiresIn = 60 * 60 * 24 * 14 * 1000; // set for 2 weeks (maximum)
+    // const expiresIn = 300 * 1000; // set for 5 min (minimum) to test `ignoreExpiration`
+    const expiresIn = 60 * 60 * 24 * 14 * 1000; // set for 2 weeks (maximum)
     const sessionCookie = await admin
       .auth()
       .createSessionCookie(request.body.idToken, { expiresIn });
@@ -109,7 +120,10 @@ export const logout = functions.https.onRequest(async (request, response) => {
   }
   response.set("Access-Control-Allow-Credentials", "true");
   response.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization, x-csrf-token");
+  response.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, x-csrf-token"
+  );
   response.set("Access-Control-Max-Age", "86400");
   response.set("Cache-Control", "private");
 
@@ -149,6 +163,39 @@ type DecodedSessionToken = {
   payload: admin.auth.DecodedIdToken;
 };
 
+// https://github.com/firebase/firebase-admin-node/blob/master/src/auth/base-auth.ts#L1117
+const verifyDecodedJWTNotRevokedOrDisabled = async (
+  decodedIdToken: admin.auth.DecodedIdToken
+): Promise<admin.auth.DecodedIdToken> => {
+  // Get tokens valid after time for the corresponding user.
+  return admin
+    .auth()
+    .getUser(decodedIdToken.sub)
+    .then((user: UserRecord) => {
+      if (user.disabled) {
+        throw new FirebaseAuthError(
+          AuthClientErrorCode.USER_DISABLED,
+          "The user record is disabled."
+        );
+      }
+      // If no tokens valid after time available, token is not revoked.
+      if (user.tokensValidAfterTime) {
+        // Get the ID token authentication time and convert to milliseconds UTC.
+        const authTimeUtc = decodedIdToken.auth_time * 1000;
+        // Get user tokens valid after time in milliseconds UTC.
+        const validSinceUtc = new Date(user.tokensValidAfterTime).getTime();
+        // Check if authentication time is older than valid since time.
+        if (authTimeUtc < validSinceUtc) {
+          throw new FirebaseAuthError(
+            AuthClientErrorCode.SESSION_COOKIE_REVOKED
+          );
+        }
+      }
+      // All checks above passed. Return the decoded token.
+      return decodedIdToken;
+    });
+};
+
 const verifySessionCookieExtended = async (sessionCookie: string) => {
   const projectId = await sessionCookieVerifier.ensureProjectId();
   const decodedToken: DecodedSessionToken =
@@ -164,7 +211,10 @@ const verifySessionCookieExtended = async (sessionCookie: string) => {
   } catch (err) {
     throw sessionCookieVerifier.mapJwtErrorToAuthError(err);
   }
-  return { ...decodedToken.payload, uid: decodedToken.payload.sub };
+  return verifyDecodedJWTNotRevokedOrDisabled({
+    ...decodedToken.payload,
+    uid: decodedToken.payload.sub,
+  });
 };
 
 export const status = functions.https.onRequest(async (request, response) => {
@@ -173,7 +223,10 @@ export const status = functions.https.onRequest(async (request, response) => {
   }
   response.set("Access-Control-Allow-Credentials", "true");
   response.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  response.set("Access-Control-Allow-Headers", "Content-Type, Authorization, x-csrf-token");
+  response.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, x-csrf-token"
+  );
   response.set("Access-Control-Max-Age", "86400");
   response.set("Cache-Control", "private");
 
