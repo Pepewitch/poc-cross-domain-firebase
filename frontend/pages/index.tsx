@@ -8,21 +8,13 @@ import {
 import { useEffect, useState } from "react";
 import { auth } from "../constants/firebase";
 
-const BASE_URL = "https://poc-cross-domain-firebase-api.anypoc.app";
+const BASE_URL = "https://poc-cross-domain-firebase-api2.anypoc.app";
 axios.defaults.withCredentials = true;
 
 const syncCookieSession = async (idToken: string) => {
-  await axios.post(`${BASE_URL}/csrf`, {
+  await axios.post(`${BASE_URL}/signin`, {
     idToken,
   });
-  const cookie = getCookie(document.cookie);
-  await axios.post(
-    `${BASE_URL}/login`,
-    {
-      idToken,
-    },
-    { headers: { "x-csrf-token": cookie.csrf_token } }
-  );
 };
 
 const Signup = () => {
@@ -162,7 +154,7 @@ export default function Home() {
     syncUser();
   }, []);
   const logout = async () => {
-    await axios.post(`${BASE_URL}/logout`);
+    await axios.post(`${BASE_URL}/signout`);
     await auth.signOut();
   };
   return (
