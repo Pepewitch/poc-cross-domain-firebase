@@ -6,7 +6,7 @@ import {
   ALGORITHM_RS256,
 } from "firebase-admin/lib/utils/jwt";
 import { getCookie, getKeyCallback } from "./helper";
-import { hashSync } from "bcrypt";
+// import { hashSync } from "bcrypt";
 import { UserRecord } from "firebase-functions/lib/providers/auth";
 import {
   AuthClientErrorCode,
@@ -23,47 +23,7 @@ const origins = [
 
 const cookieMaxExpires = new Date(2147483647000);
 
-export const csrf = functions.https.onRequest(async (request, response) => {
-  if (origins.includes(request.headers.origin as string)) {
-    response.set("Access-Control-Allow-Origin", request.headers.origin);
-  }
-  response.set("Access-Control-Allow-Credentials", "true");
-  response.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  response.set(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, x-csrf-token"
-  );
-  response.set("Access-Control-Max-Age", "86400");
-  response.set("Cache-Control", "private");
-
-  if (request.method === "OPTIONS") {
-    response.sendStatus(200);
-    return;
-  }
-
-  try {
-    await admin.auth().verifyIdToken(request.body.idToken);
-    const csrfToken = hashSync(request.body.idToken, 5);
-    response.cookie("csrf_token", csrfToken, {
-      expires: cookieMaxExpires,
-      secure: true,
-      domain: ".anypoc.app",
-      sameSite: "none",
-    });
-
-    response.status(200).send({ success: true });
-  } catch (error) {
-    console.log(error);
-    if (error instanceof Error) {
-      response.status(500).send({ message: error.message });
-      return;
-    }
-    response.sendStatus(500);
-    return;
-  }
-});
-
-export const login = functions.https.onRequest(async (request, response) => {
+export const signin = functions.https.onRequest(async (request, response) => {
   if (origins.includes(request.headers.origin as string)) {
     response.set("Access-Control-Allow-Origin", request.headers.origin);
   }
@@ -78,13 +38,6 @@ export const login = functions.https.onRequest(async (request, response) => {
 
   if (request.method === "OPTIONS") {
     response.sendStatus(200);
-    return;
-  }
-
-  const { csrf_token: cookieCsrf } = getCookie(request.headers.cookie);
-  const csrf = request.headers["x-csrf-token"];
-  if (!csrf || !cookieCsrf || csrf !== cookieCsrf) {
-    response.status(401).send("UNAUTHORIZED REQUEST!");
     return;
   }
 
@@ -114,7 +67,7 @@ export const login = functions.https.onRequest(async (request, response) => {
   }
 });
 
-export const logout = functions.https.onRequest(async (request, response) => {
+export const signout = functions.https.onRequest(async (request, response) => {
   if (origins.includes(request.headers.origin as string)) {
     response.set("Access-Control-Allow-Origin", request.headers.origin);
   }
@@ -134,8 +87,8 @@ export const logout = functions.https.onRequest(async (request, response) => {
 
   try {
     const cookie = getCookie(request.headers.cookie);
-    const { uid } = await verifySessionCookieExtended(cookie.__session);
-    await admin.auth().revokeRefreshTokens(uid);
+    await verifySessionCookieExtended(cookie.__session);
+    // await admin.auth().revokeRefreshTokens(uid);
   } catch (error) {}
 
   try {
