@@ -12,7 +12,7 @@ const BASE_URL = "https://poc-cross-domain-firebase-api2.anypoc.app";
 axios.defaults.withCredentials = true;
 
 const syncCookieSession = async (idToken: string) => {
-  await axios.post(`${BASE_URL}/signin`, {
+  await axios.post(`${BASE_URL}/sign-in`, {
     idToken,
   });
 };
@@ -141,7 +141,7 @@ export default function Home() {
     const syncUser = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.post(`${BASE_URL}/status`);
+        const { data } = await axios.post(`${BASE_URL}/sync`);
         if (data.customToken) {
           await signInWithCustomToken(auth, data.customToken);
         }
@@ -156,7 +156,9 @@ export default function Home() {
   }, []);
   const logout = async () => {
     await Promise.all([
-      axios.post(`${BASE_URL}/signout`),
+      axios.post(`${BASE_URL}/signout`, {
+        idToken: await currentUser.getIdToken(),
+      }),
       auth.signOut(),
     ]);
   };
