@@ -6,20 +6,16 @@
   "hosting": {
     "rewrites": [
       {
-        "source": "/login",
-        "function": "login"
+        "source": "/signin",
+        "function": "signin"
       },
       {
         "source": "/status",
         "function": "status"
       },
       {
-        "source": "/logout",
-        "function": "logout"
-      },
-      {
-        "source": "/csrf",
-        "function": "csrf"
+        "source": "/signout",
+        "function": "signout"
       },
       {
         "source": "/ping",
