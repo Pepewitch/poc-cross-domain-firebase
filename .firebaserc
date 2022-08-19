@@ -1,5 +1,17 @@
 {
   "projects": {
     "default": "poc-cross-domain-firebase"
+  },
+  "targets": {
+    "poc-cross-domain-firebase": {
+      "hosting": {
+        "poc-cross-domain-firebase-2": [
+          "poc-cross-domain-firebase-2"
+        ],
+        "poc-cross-domain-firebase": [
+          "poc-cross-domain-firebase"
+        ]
+      }
+    }
   }
 }

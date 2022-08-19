@@ -4,5 +4,9 @@
   "main": "index.js",
   "repository": "https://github.com/Pepewitch/poc-cross-domain-firebase.git",
   "author": "Witchayut <skpepe134@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "deploy": "firebase deploy",
+    "deploy2": "firebase deploy --only hosting:poc-cross-domain-firebase-2"
+  }
 }

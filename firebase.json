@@ -3,25 +3,35 @@
     "predeploy": "npm --prefix \"$RESOURCE_DIR\" run build",
     "source": "functions"
   },
-  "hosting": {
-    "rewrites": [
-      {
-        "source": "/signin",
-        "function": "signin"
-      },
-      {
-        "source": "/status",
-        "function": "status"
-      },
-      {
-        "source": "/signout",
-        "function": "signout"
-      },
-      {
-        "source": "/ping",
-        "function": "ping"
-      }
-    ],
-    "ignore": ["frontend", "firebase.json", "**/.*", "**/node_modules/**"]
-  }
+  "hosting": [
+    {
+      "target": "poc-cross-domain-firebase",
+      "rewrites": [
+        {
+          "source": "/sign-in",
+          "function": "signin"
+        },
+        {
+          "source": "/sync",
+          "function": "status"
+        },
+        {
+          "source": "/sign-out",
+          "function": "signout"
+        },
+        {
+          "source": "/ping",
+          "function": "ping"
+        }
+      ],
+      "public": "frontend/out",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    },
+    {
+      "target": "poc-cross-domain-firebase-2",
+      "rewrites": [],
+      "public": "frontend/out",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    }
+  ]
 }

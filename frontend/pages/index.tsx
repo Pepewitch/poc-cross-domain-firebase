@@ -8,7 +8,8 @@ import {
 import { useEffect, useState } from "react";
 import { auth } from "../constants/firebase";
 
-const BASE_URL = "https://poc-cross-domain-firebase-api2.anypoc.app";
+// const BASE_URL = "https://poc-cross-domain-firebase.web.app";
+const BASE_URL = "https://poc-cross-domain-firebase-api.anypoc.app";
 axios.defaults.withCredentials = true;
 
 const syncCookieSession = async (idToken: string) => {
@@ -141,7 +142,7 @@ export default function Home() {
     const syncUser = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.post(`${BASE_URL}/sync`);
+        const { data } = await axios.get(`${BASE_URL}/sync`);
         if (data.customToken) {
           await signInWithCustomToken(auth, data.customToken);
         }

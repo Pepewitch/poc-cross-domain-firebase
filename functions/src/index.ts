@@ -17,6 +17,8 @@ admin.initializeApp();
 const sessionCookieVerifier = createSessionCookieVerifier(admin.app());
 
 const origins = [
+  "https://poc-cross-domain-firebase.web.app",
+  "https://poc-cross-domain-firebase-2.web.app",
   "https://poc-cross-domain-firebase.anypoc.app",
   "https://poc-cross-domain-firebase2.anypoc.app",
 ];
