@@ -21,6 +21,7 @@ const origins = [
   "https://poc-cross-domain-firebase-2.web.app",
   "https://poc-cross-domain-firebase.anypoc.app",
   "https://poc-cross-domain-firebase2.anypoc.app",
+  "https://stackoverflow.com",
 ];
 
 const cookieMaxExpires = new Date(2147483647000);

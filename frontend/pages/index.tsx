@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { auth } from "../constants/firebase";
 
 // const BASE_URL = "https://poc-cross-domain-firebase.web.app";
-const BASE_URL = "https://poc-cross-domain-firebase-api.anypoc.app";
+const BASE_URL = "https://poc-cross-domain-firebase-api2.anypoc.app";
 axios.defaults.withCredentials = true;
 
 const syncCookieSession = async (idToken: string) => {
@@ -156,12 +156,10 @@ export default function Home() {
     syncUser();
   }, []);
   const logout = async () => {
-    await Promise.all([
-      axios.post(`${BASE_URL}/signout`, {
-        idToken: await currentUser.getIdToken(),
-      }),
-      auth.signOut(),
-    ]);
+    await axios.post(`${BASE_URL}/sign-out`, {
+      idToken: await currentUser.getIdToken(),
+    });
+    auth.signOut();
   };
   return (
     <div className="flex p-2 flex-col items-center max-w-4xl mx-auto">
